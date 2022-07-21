@@ -137,7 +137,9 @@ class ErlangC:
         if max_occupancy < 0 or max_occupancy > 1:
             raise ValueError("max_occupancy must be between 0 and 1")
 
-        positions = self.intensity + 1
+        
+        positions = round(self.intensity + 1)
+        reduction = self.intensity + 1 - positions
         achieved_service_level = self.service_level(positions, scale_positions=False)
         while achieved_service_level < service_level:
             positions += 1
@@ -156,7 +158,7 @@ class ErlangC:
         positions = ceil(raw_positions / (1 - self.shrinkage))
 
         return {"raw_positions": raw_positions,
-                "positions": positions,
+                "positions": positions-reduction,
                 "service_level": achieved_service_level,
                 "occupancy": achieved_occupancy,
                 "waiting_probability": waiting_probability}
