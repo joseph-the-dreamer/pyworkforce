@@ -8,7 +8,6 @@ class ErlangC:
     Computes the number of positions required to attend a number of transactions in a
     queue system based on erlangc.rst. Implementation inspired on:
     https://lucidmanager.org/data-science/call-centre-workforce-planning-erlang-c-in-r/
-
     Parameters
     ----------
     transactions: float,
@@ -49,23 +48,21 @@ class ErlangC:
         self.intensity = (self.n_transactions / self.interval) * self.aht
         self.shrinkage = shrinkage
 
-    def waiting_probability(self, positions: float, scale_positions: bool = False):
+    def waiting_probability(self, positions: int, scale_positions: bool = False):
         """
         Returns the probability of waiting in the queue
-
         Parameters
         ----------
         positions: int,
             The number of positions to attend the transactions.
         scale_positions: bool, default=False
             Set it to True if the positions were calculated using shrinkage.
-
         """
 
         if scale_positions:
-            productive_positions = floor((1 - self.shrinkage) * int(positions))
+            productive_positions = floor((1 - self.shrinkage) * positions)
         else:
-            productive_positions = int(positions)
+            productive_positions = positions
 
         erlang_b_inverse = 1
         for position in range(1, productive_positions + 1):
@@ -74,18 +71,15 @@ class ErlangC:
         erlang_b = 1 / erlang_b_inverse
         return productive_positions * erlang_b / (productive_positions - self.intensity * (1 - erlang_b))
 
-    def service_level(self, positions: float, scale_positions: bool = False):
+    def service_level(self, positions: int, scale_positions: bool = False):
         """
         Returns the expected service level given a number of positions
-
         Parameters
         ----------
-
         positions: int,
             The number of positions attending.
         scale_positions: bool, default = False
             Set it to True if the positions were calculated using shrinkage.
-
         """
         if scale_positions:
             productive_positions = floor((1 - self.shrinkage) * positions)
@@ -96,18 +90,15 @@ class ErlangC:
         exponential = exp(-(productive_positions - self.intensity) * (self.asa / self.aht))
         return max(0, 1 - (probability_wait * exponential))
 
-    def achieved_occupancy(self, positions: float, scale_positions: bool = False):
+    def achieved_occupancy(self, positions: int, scale_positions: bool = False):
         """
         Returns the expected occupancy of positions
-
         Parameters
         ----------
-
         positions: int,
             The number of raw positions
         scale_positions: bool, default=False
             Set it to True if the positions were calculated using shrinkage.
-
         """
         if scale_positions:
             productive_positions = floor((1 - self.shrinkage) * positions)
@@ -119,18 +110,14 @@ class ErlangC:
     def required_positions(self, service_level: float, max_occupancy: float = 1.0):
         """
         Computes the requirements using erlangc.rst
-
         Parameters
         ----------
-
         service_level: float,
             Target service level
         max_occupancy: float,
             The maximum fraction of time that a transaction can occupy a position
-
         Returns
         -------
-
         raw_positions: int,
             The required positions assuming shrinkage = 0
         positions: int,
@@ -181,10 +168,8 @@ class MultiErlangC:
     allowing to run multiple scenarios at once.
     It finds solutions iterating over all possible combinations provided by the users,
     inspired how Sklearn's Grid Search works
-
     Parameters
     ----------
-
     param_grid: dict,
         Dictionary with the erlangc.rst.__init__ parameters, each key of the dictionary must be the
         expected parameter and the value must be a list with the different options to iterate
@@ -198,10 +183,8 @@ class MultiErlangC:
     pre_dispatch: {"all", int, or expression}, default='2 * n_jobs'
         The number of batches (of tasks) to be pre-dispatched. Default is ‘2*n_jobs’.
         See joblib's documentation for more details: https://joblib.readthedocs.io/en/latest/generated/joblib.Parallel.html
-
     Attributes
     ----------
-
     waiting_probability_params: list[tuple],
         Each tuple of the list represents the used parameters in param_grid for ErlangC and
         arguments_grid for waiting_probability method,corresponding to the same order returned
@@ -236,10 +219,8 @@ class MultiErlangC:
         Returns the probability of waiting in the queue
         Returns a list with the solution to all the possible combinations from the arguments_grid
         and the erlangc.rst param_grid
-
         Parameters
         ----------
-
         arguments_grid: dict,
             Dictionary with the erlangc.rst.waiting_probability parameters,
             each key of the dictionary must be the expected parameter and
@@ -265,16 +246,13 @@ class MultiErlangC:
         Returns the expected service level given a number of positions
         Returns a list with the solution to all the possible combinations from the arguments_grid
         and the erlangc.rst param_grid
-
         Parameters
         ----------
-
         arguments_grid: dict,
             Dictionary with the erlangc.rst.service_level parameters,
             each key of the dictionary must be the expected parameter and
             the value must be a list with the different options to iterate
             example: {"positions": [10, 20, 30], "scale_positions": [True, False]}
-
         """
         arguments_list = list(ParameterGrid(arguments_grid))
         self.service_level_params = [(erlang_params, sl_params)
@@ -294,10 +272,8 @@ class MultiErlangC:
         Returns the expected occupancy of positions
         Returns a list with the solution to all the possible combinations from the arguments_grid
         and the erlangc.rst param_grid
-
         Parameters
         ----------
-
         arguments_grid: dict,
             Dictionary with the erlangc.rst.achieved_occupancy parameters,
             each key of the dictionary must be the expected parameter and
@@ -319,10 +295,8 @@ class MultiErlangC:
         """
         Computes the requirements using MultiErlangC
         Returns a list with the solution to all the possible combinations from the arguments_grid and the erlangc.rst param_grid
-
         Parameters
         ----------
-
         arguments_grid: dict,
             Dictionary with the erlangc.rst.achieved_occupancy parameters,
             each key of the dictionary must be the expected parameter and
