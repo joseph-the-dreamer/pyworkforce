@@ -63,9 +63,9 @@ class ErlangC:
         """
 
         if scale_positions:
-            productive_positions = floor((1 - self.shrinkage) * positions)
+            productive_positions = floor((1 - self.shrinkage) * int(positions))
         else:
-            productive_positions = positions
+            productive_positions = int(positions)
 
         erlang_b_inverse = 1
         for position in range(1, productive_positions + 1):
