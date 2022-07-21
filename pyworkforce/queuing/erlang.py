@@ -158,7 +158,7 @@ class ErlangC:
         positions = ceil(raw_positions / (1 - self.shrinkage))
 
         return {"raw_positions": raw_positions,
-                "positions": positions-reduction,
+                "positions": positions-abs(reduction),
                 "service_level": achieved_service_level,
                 "occupancy": achieved_occupancy,
                 "waiting_probability": waiting_probability}
