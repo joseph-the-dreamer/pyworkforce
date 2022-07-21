@@ -49,7 +49,7 @@ class ErlangC:
         self.intensity = (self.n_transactions / self.interval) * self.aht
         self.shrinkage = shrinkage
 
-    def waiting_probability(self, positions: int, scale_positions: bool = False):
+    def waiting_probability(self, positions: float, scale_positions: bool = False):
         """
         Returns the probability of waiting in the queue
 
@@ -74,7 +74,7 @@ class ErlangC:
         erlang_b = 1 / erlang_b_inverse
         return productive_positions * erlang_b / (productive_positions - self.intensity * (1 - erlang_b))
 
-    def service_level(self, positions: int, scale_positions: bool = False):
+    def service_level(self, positions: float, scale_positions: bool = False):
         """
         Returns the expected service level given a number of positions
 
@@ -96,7 +96,7 @@ class ErlangC:
         exponential = exp(-(productive_positions - self.intensity) * (self.asa / self.aht))
         return max(0, 1 - (probability_wait * exponential))
 
-    def achieved_occupancy(self, positions: int, scale_positions: bool = False):
+    def achieved_occupancy(self, positions: float, scale_positions: bool = False):
         """
         Returns the expected occupancy of positions
 
@@ -150,7 +150,7 @@ class ErlangC:
         if max_occupancy < 0 or max_occupancy > 1:
             raise ValueError("max_occupancy must be between 0 and 1")
 
-        positions = int(self.intensity + 1)
+        positions = self.intensity + 1
         achieved_service_level = self.service_level(positions, scale_positions=False)
         while achieved_service_level < service_level:
             positions += 1
